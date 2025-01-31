@@ -23,14 +23,16 @@ public struct DutchPayModel {
         public let transferMessage: String?
         public let isDone: Bool
         public let isRequesting: Bool
+        public let date: Date?
         
-        public init(id: Int, name: String, amount: Int, transferMessage: String?, isDone: Bool, isRequesting: Bool) {
+        public init(id: Int, name: String, amount: Int, transferMessage: String?, isDone: Bool, isRequesting: Bool, date: Date? = nil) {
             self.id = id
             self.name = name
             self.amount = amount
             self.transferMessage = transferMessage
             self.isDone = isDone
             self.isRequesting = isRequesting
+            self.date = date
         }
     }
     

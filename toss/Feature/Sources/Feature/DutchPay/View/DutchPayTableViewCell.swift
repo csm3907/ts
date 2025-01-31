@@ -1,10 +1,14 @@
 import UIKit
+import Combine
+
 import SnapKit
 import Design
 import Core
 
 final public class DutchPayTableViewCell: UITableViewCell {
     static let identifier = "DutchPayTableViewCell"
+    
+    var cancellables: Set<AnyCancellable> = .init()
     
     // MARK: - UI Components
     private lazy var mainStackView: UIStackView = {
@@ -75,20 +79,36 @@ final public class DutchPayTableViewCell: UITableViewCell {
     
     private var animationStartTime: Date?
     private let totalDuration: TimeInterval = 10.0
-        
+    private var participant: DutchParticipantModel?
+    
     
     // MARK: - Initialization
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         setupUI()
+        bind()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func bind() {
+        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                if let participant {
+                    self.configure(with: participant) {
+                        self.requestAction?()
+                    }
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
     // MARK: - Setup
+    
     private func setupUI() {
         contentView.addSubview(initialsLabel)
         contentView.addSubview(mainStackView)
@@ -136,12 +156,14 @@ final public class DutchPayTableViewCell: UITableViewCell {
     
     // MARK: - Configuration
     func configure(with participant: DutchParticipantModel, requestAction: (() -> Void)? = nil) {
+        self.participant = participant
         initialsLabel.text = String(participant.name.prefix(1))
         nameLabel.text = participant.name
         amountLabel.text = "\(participant.amount.formattedWithComma)원"
         statusLabel.text = participant.status.rawValue
         statusLabel.textColor = participant.status == .completed ? .black : .systemBlue
         messageLabel.text = participant.message
+        animationStartTime = participant.date
         
         // 상태에 따라 버튼과 라벨 표시 전환
         switch participant.status {
@@ -162,7 +184,6 @@ final public class DutchPayTableViewCell: UITableViewCell {
                     self.requestAction?()
                 }
             } else {
-                animationStartTime = Date()
                 progressButton.animate(from: 0)
             }
         case .requested, .reRequest:

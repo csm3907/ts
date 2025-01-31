@@ -5,11 +5,17 @@
 //  Created by 최승민 on 1/31/25.
 //
 
-import Foundation
+import UIKit
 import Domain
+import Core
 
 import Combine
 import CombineExt
+
+enum Keys {
+    public static let requestingParticipantIds = "requestingParticipantIds"
+    public static let requestStartTimes = "requestStartTimes"
+}
 
 final class DutchPayViewModel {
     // MARK: - Properties
@@ -19,38 +25,88 @@ final class DutchPayViewModel {
     let error = CurrentValueRelay<String?>(nil)
     let dutchPayData = CurrentValueRelay<DutchPayModel?>(nil)
     let snapshot = CurrentValueRelay<DutchPaySnapshot?>(nil)
+    var requestingStartDates: [Int: Date?] = [:]
+    
+    @UserDefault(key: Keys.requestingParticipantIds, defaultValue: [])
+    var requestingParticipantIds: [Int]
     
     init() {
-        bindSnapshot()
+        bind()
     }
     
     // MARK: - Public Methods
     func fetchDutchPayData() {
         fetchUseCase.fetchDutchPayList()
+            .handleEvents(
+                receiveOutput: { [weak self] model in
+                    guard let self else { return }
+                    
+                    let updatedItems = model.dutchPayItems.map { item in
+                        if self.requestingParticipantIds.contains(item.id) {
+                            return DutchPayModel.DutchPayItemModel(
+                                id: item.id,
+                                name: item.name,
+                                amount: item.amount,
+                                transferMessage: item.transferMessage,
+                                isDone: true,
+                                isRequesting: true,
+                                date: item.date
+                            )
+                        }
+                        if let startDate = self.requestingStartDates[item.id] {
+                            return DutchPayModel.DutchPayItemModel(
+                                id: item.id,
+                                name: item.name,
+                                amount: item.amount,
+                                transferMessage: item.transferMessage,
+                                isDone: item.isDone,
+                                isRequesting: true,
+                                date: startDate
+                            )
+                        }
+                        return item
+                    }
+                    
+                    let updatedModel = DutchPayModel(
+                        ownerName: model.ownerName,
+                        message: model.message,
+                        date: model.date,
+                        totalAmount: model.totalAmount,
+                        completedAmount: model.completedAmount,
+                        dutchPayItems: updatedItems
+                    )
+                    self.dutchPayData.accept(updatedModel)
+                    
+                })
             .sink { [weak self] completion in
-                if case .failure(_) = completion {
+                if case .failure(let error) = completion {
                     self?.error.accept("client Error")
                 }
-            } receiveValue: { [weak self] model in
-                self?.dutchPayData.accept(model)
+            } receiveValue: { _ in
+                //self?.dutchPayData.accept(model)
             }
             .store(in: &cancellables)
     }
     
     func requestPayment(for participantId: Int) {
-        updateStatus(participantId: participantId, isDone: false, isRequesting: true)
+        let now = Date()
+        requestingStartDates[participantId] = now
+        updateStatus(participantId: participantId, isDone: false, isRequesting: true, startDate: now)
     }
     
     func requestPaymentDone(for participantId: Int) {
+        requestingParticipantIds.append(participantId)
+        requestingStartDates[participantId] = nil
         updateStatus(participantId: participantId, isDone: true, isRequesting: true)
     }
     
     func requestCancel(for participantId: Int) {
+        requestingStartDates[participantId] = nil
         updateStatus(participantId: participantId, isDone: false, isRequesting: false)
     }
     
     // MARK: - Private Methods
-    private func bindSnapshot() {
+    private func bind() {
         dutchPayData
             .compactMap { $0 }
             .map { DutchPayMapper.mapToSnapshot(from: $0) }
@@ -60,7 +116,7 @@ final class DutchPayViewModel {
             .store(in: &cancellables)
     }
     
-    private func updateStatus(participantId: Int, isDone: Bool?, isRequesting: Bool?) {
+    private func updateStatus(participantId: Int, isDone: Bool?, isRequesting: Bool?, startDate: Date? = nil) {
         guard let value = self.dutchPayData.value else { return }
         
         let updatedItems = value.dutchPayItems.map { item in
@@ -71,7 +127,8 @@ final class DutchPayViewModel {
                     amount: item.amount,
                     transferMessage: item.transferMessage,
                     isDone: isDone ?? item.isDone,
-                    isRequesting: isRequesting ?? item.isRequesting
+                    isRequesting: isRequesting ?? item.isRequesting,
+                    date: startDate
                 )
                 return updated
             }

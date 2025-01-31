@@ -44,7 +44,8 @@ struct DutchPayMapper {
                     name: item.name,
                     amount: item.amount,
                     status: status,
-                    message: item.transferMessage
+                    message: item.transferMessage,
+                    date: item.date
                 )
             )
         }
