@@ -79,8 +79,13 @@ final class DutchPayViewModel {
                     
                 })
             .sink { [weak self] completion in
-                if case .failure(let error) = completion {
-                    self?.error.accept("client Error")
+                if case let .failure(error) = completion {
+                    let nsError = error as NSError
+                    if let message = nsError.userInfo["data"] as? String {
+                        self?.error.accept(message)
+                    } else {
+                        self?.error.accept("client Error")
+                    }
                 }
             } receiveValue: { _ in
                 //self?.dutchPayData.accept(model)

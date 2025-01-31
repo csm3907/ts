@@ -8,6 +8,10 @@
 import Foundation
 import Combine
 
+struct ErrorResponseDTO: Codable {
+    let message: String
+}
+
 public final class NetworkImp: Network {
     private var defaultHeaders: HTTPHeader = [:]
     private let session: URLSession
@@ -45,7 +49,8 @@ public final class NetworkImp: Network {
                 .tryMap { data, response in
                     let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
                     guard statusCode / 100 == 2 else {
-                        throw NSError(domain: response.description, code: statusCode, userInfo: ["data": String(data: data, encoding: .utf8) ?? data])
+                        let errorResponse = try? JSONDecoder().decode(ErrorResponseDTO.self, from: data)
+                        throw NSError(domain: response.description, code: statusCode, userInfo: ["data": errorResponse?.message ?? ""])
                     }
                     if data.isEmpty {
                         let emptyData = "{}".data(using: .utf8)
