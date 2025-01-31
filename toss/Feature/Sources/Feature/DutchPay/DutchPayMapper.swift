@@ -10,29 +10,6 @@ import Foundation
 import Domain
 
 struct DutchPayMapper {
-    func mapHeader(item: DutchPayModel) -> DutchHeaderModel {
-        return DutchHeaderModel.init(
-            date: item.date,
-            completedAmount: item.completedAmount,
-            totalAmount: item.totalAmount,
-            message: item.message
-        )
-    }
-    
-    func mapItem(item: DutchPayModel) -> [DutchParticipantModel] {
-        return item.dutchPayItems.map {
-            DutchParticipantModel(
-                id: $0.id,
-                name: $0.name,
-                amount: $0.amount,
-                status: PaymentStatus.completed,
-                message: $0.transferMessage
-            )
-        }
-    }
-}
-
-extension DutchPayMapper {
     static func mapToSnapshot(from model: DutchPayModel) -> DutchPaySnapshot {
         var snapshot = DutchPaySnapshot()
         snapshot.appendSections([.header, .main])
@@ -46,12 +23,27 @@ extension DutchPayMapper {
         snapshot.appendItems([.header(headerItem)], toSection: .header)
         
         let participants = model.dutchPayItems.map { item in
-            DutchPayItem.participant(
+            var status: PaymentStatus
+            if item.isDone {
+                if item.isRequesting {
+                    status = .requested
+                } else {
+                    status = .completed
+                }
+            } else {
+                if item.isRequesting {
+                    status = .requesting
+                } else {
+                    status = .reRequest
+                }
+            }
+            
+            return DutchPayItem.participant(
                 DutchParticipantModel(
                     id: item.id,
                     name: item.name,
                     amount: item.amount,
-                    status: item.isDone ? .completed : .requested,
+                    status: status,
                     message: item.transferMessage
                 )
             )

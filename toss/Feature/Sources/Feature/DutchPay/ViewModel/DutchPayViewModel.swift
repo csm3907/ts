@@ -37,6 +37,14 @@ final class DutchPayViewModel {
             .store(in: &cancellables)
     }
     
+    func requestPayment(for participantId: Int) {
+        updateStatus(participantId: participantId, isDone: false, isRequesting: true)
+    }
+    
+    func requestPaymentDone(for participantId: Int) {
+        updateStatus(participantId: participantId, isDone: true, isRequesting: nil)
+    }
+    
     // MARK: - Private Methods
     private func bindSnapshot() {
         dutchPayData
@@ -46,5 +54,35 @@ final class DutchPayViewModel {
                 self?.snapshot.accept(snapshot)
             }
             .store(in: &cancellables)
+    }
+    
+    private func updateStatus(participantId: Int, isDone: Bool?, isRequesting: Bool?) {
+        guard let value = self.dutchPayData.value else { return }
+        
+        let updatedItems = value.dutchPayItems.map { item in
+            if item.id == participantId {
+                let updated = DutchPayModel.DutchPayItemModel(
+                    id: item.id,
+                    name: item.name,
+                    amount: item.amount,
+                    transferMessage: item.transferMessage,
+                    isDone: isDone ?? item.isDone,
+                    isRequesting: isRequesting ?? item.isRequesting
+                )
+                return updated
+            }
+            return item
+        }
+        
+        let updatedModel = DutchPayModel(
+            ownerName: value.ownerName,
+            message: value.message,
+            date: value.date,
+            totalAmount: value.totalAmount,
+            completedAmount: value.completedAmount,
+            dutchPayItems: updatedItems
+        )
+        
+        dutchPayData.accept(updatedModel)
     }
 }

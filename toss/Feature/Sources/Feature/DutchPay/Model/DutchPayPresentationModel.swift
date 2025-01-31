@@ -23,10 +23,11 @@ struct DutchParticipantModel: Hashable {
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(status)
     }
     
     static func == (lhs: DutchParticipantModel, rhs: DutchParticipantModel) -> Bool {
-        return lhs.id == rhs.id
+        return (lhs.id == rhs.id) && (lhs.status == rhs.status)
     }
 }
 

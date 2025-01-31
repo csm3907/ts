@@ -102,7 +102,6 @@ final class DutchPayHeaderCell: UITableViewCell {
     }
 }
 
-// MARK: - Helper
 private extension UILabel {
     convenience init(text: String) {
         self.init()

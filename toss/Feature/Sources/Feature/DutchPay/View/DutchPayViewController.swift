@@ -66,7 +66,8 @@ public class DutchPayViewController: UIViewController {
     private func configureDataSource() {
         dataSource = DutchPayDataSource(
             tableView: tableView,
-            cellProvider: { tableView, indexPath, item in
+            cellProvider: { [weak self] tableView, indexPath, item in
+                guard let self else { return UITableViewCell() }
                 switch item {
                 case .header(let headerItem):
                     guard let cell = tableView.dequeueReusableCell(
@@ -92,7 +93,15 @@ public class DutchPayViewController: UIViewController {
                     ) as? DutchPayTableViewCell else {
                         return UITableViewCell()
                     }
-                    cell.configure(with: participant)
+                    cell.configure(with: participant) { [weak self] in
+                        guard let self else { return }
+                        self.viewModel.requestPaymentDone(for: participant.id)
+                    }
+                    cell.statusLabel.touchPublisher
+                        .sink { _ in
+                            self.viewModel.requestPayment(for: participant.id)
+                        }
+                        .store(in: &self.cancellables)
                     return cell
                 }
             }
@@ -121,7 +130,7 @@ public class DutchPayViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] snapshot in
                 self?.refreshControl.endRefreshing()
-                self?.dataSource.apply(snapshot, animatingDifferences: true)
+                self?.dataSource.apply(snapshot, animatingDifferences: false)
             }
             .store(in: &cancellables)
     }

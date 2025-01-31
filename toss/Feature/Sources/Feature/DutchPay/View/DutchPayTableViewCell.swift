@@ -1,5 +1,7 @@
 import UIKit
 import SnapKit
+import Design
+import Core
 
 final public class DutchPayTableViewCell: UITableViewCell {
     static let identifier = "DutchPayTableViewCell"
@@ -30,7 +32,7 @@ final public class DutchPayTableViewCell: UITableViewCell {
         return label
     }()
     
-    private let statusLabel: UILabel = {
+    let statusLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
         label.textAlignment = .right
@@ -45,6 +47,18 @@ final public class DutchPayTableViewCell: UITableViewCell {
         return label
     }()
     
+    private lazy var progressButton: ProgressButton = {
+        let button = ProgressButton(duration: 10)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("", for: .normal)
+        button.frame.size = CGSize(width: 100, height: 100)
+        button.setTitleColor(.gray, for: .normal)
+        button.isHidden = true
+        return button
+    }()
+    
+    private var requestAction: (() -> Void)?
+    
     // MARK: - Initialization
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -58,14 +72,14 @@ final public class DutchPayTableViewCell: UITableViewCell {
     
     // MARK: - Setup
     private func setupUI() {
-        [initialsLabel, nameLabel, amountLabel, statusLabel, messageLabel].forEach {
+        [initialsLabel, nameLabel, amountLabel, statusLabel, messageLabel, progressButton].forEach {
             contentView.addSubview($0)
         }
         
         initialsLabel.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(16)
             $0.centerY.equalToSuperview()
-            $0.width.height.equalTo(30) // 원형이 되도록 너비와 높이를 동일하게 설정
+            $0.width.height.equalTo(30)
         }
         
         nameLabel.snp.makeConstraints {
@@ -75,39 +89,59 @@ final public class DutchPayTableViewCell: UITableViewCell {
         
         amountLabel.snp.makeConstraints {
             $0.trailing.equalTo(statusLabel.snp.leading).offset(-12)
-            $0.centerY.equalToSuperview()
+            $0.centerY.equalTo(nameLabel.snp.centerY)
         }
         
         statusLabel.snp.makeConstraints {
             $0.trailing.equalToSuperview().offset(-16)
-            $0.centerY.equalToSuperview()
+            $0.centerY.equalTo(nameLabel.snp.centerY)
             $0.width.equalTo(50)
         }
         
         messageLabel.snp.makeConstraints {
             $0.leading.equalTo(nameLabel)
             $0.top.equalTo(nameLabel.snp.bottom).offset(4)
-            $0.trailing.equalTo(amountLabel.snp.leading).offset(-8)
+            $0.trailing.equalToSuperview().offset(-8)
             $0.bottom.equalToSuperview().offset(-12)
+        }
+        
+        progressButton.snp.makeConstraints {
+            $0.centerX.equalTo(statusLabel.snp.centerX)
+            $0.centerY.equalToSuperview()
         }
     }
     
     // MARK: - Configuration
-    func configure(with participant: DutchParticipantModel) {
+    func configure(with participant: DutchParticipantModel, requestAction: (() -> Void)? = nil) {
         initialsLabel.text = String(participant.name.prefix(1))
         nameLabel.text = participant.name
         amountLabel.text = "\(participant.amount.formattedWithComma)원"
         statusLabel.text = participant.status.rawValue
         statusLabel.textColor = participant.status == .completed ? .black : .systemBlue
         messageLabel.text = participant.message
+        
+        // 상태에 따라 버튼과 라벨 표시 전환
+        switch participant.status {
+        case .completed:
+            statusLabel.isHidden = false
+            progressButton.isHidden = true
+            progressButton.cancel()
+        case .requesting:
+            statusLabel.isHidden = true
+            progressButton.isHidden = false
+            progressButton.animate(from: 0)
+        case .requested:
+            statusLabel.isHidden = false
+            progressButton.isHidden = true
+        case .reRequest:
+            statusLabel.isHidden = false
+            progressButton.isHidden = true
+        }
+        self.requestAction = requestAction
+    }
+    
+    // MARK: - Actions
+    private func requestButtonTapped() {
+        requestAction?()
     }
 }
-
-// MARK: - Helper
-extension Int {
-    var formattedWithComma: String {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        return numberFormatter.string(from: NSNumber(value: self)) ?? "\(self)"
-    }
-} 

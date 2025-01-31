@@ -63,7 +63,7 @@ public class ProgressButton: UIButton {
         layer.addSublayer(maskLayer)
     }
     
-    func animate(from fromValue: CGFloat) {
+    public func animate(from fromValue: CGFloat) {
         cancel()
         
         let morph = CABasicAnimation(keyPath: "ProgressButton")
@@ -88,7 +88,7 @@ public class ProgressButton: UIButton {
         self.layer.addSublayer(layer)
     }
     
-    func cancel() {
+    public func cancel() {
         layer.sublayers?.forEach { layer in
             if layer is CAShapeLayer {
                 layer.removeAllAnimations()
