@@ -13,39 +13,12 @@ typealias DutchPayDataSource = UITableViewDiffableDataSource<DutchPaySection, Du
 typealias DutchPaySnapshot = NSDiffableDataSourceSnapshot<DutchPaySection, DutchPayItem>
 
 // MARK: - Enum & Model
-public enum DutchPaySection {
+enum DutchPaySection {
     case header
     case main
 }
 
-public enum DutchPayItem: Hashable {
-    case header(DutchPayHeaderInfo)
-    case participant(DutchPayParticipant)
-}
-
-public struct DutchPayHeaderInfo: Hashable {
-    let id = UUID()
-}
-
-public struct DutchPayParticipant: Hashable {
-    let id = UUID()
-    let name: String
-    let amount: Int
-    let status: PaymentStatus
-    let message: String?
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    public static func == (lhs: DutchPayParticipant, rhs: DutchPayParticipant) -> Bool {
-        return lhs.id == rhs.id
-    }
-}
-
-enum PaymentStatus: String {
-    case completed = "완료"
-    case requested = "요청함"
-    case requesting = "요청중"
-    case reRequest = "재요청"
+enum DutchPayItem: Hashable {
+    case header(DutchHeaderModel)
+    case participant(DutchParticipantModel)
 }

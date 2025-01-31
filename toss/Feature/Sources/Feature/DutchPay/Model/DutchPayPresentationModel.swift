@@ -6,7 +6,8 @@
 //
 import Foundation
 
-struct DutchHeaderModel {
+struct DutchHeaderModel: Hashable {
+    let id = UUID()
     let date: String
     var completedAmount: Int
     var totalAmount: Int
@@ -29,4 +30,18 @@ struct DutchParticipantModel: Hashable {
     }
 }
 
+enum PaymentStatus: String {
+    case completed = "완료"
+    case requested = "요청함"
+    case requesting = "요청중"
+    case reRequest = "재요청"
+    
+    init?(value: String) {
+        if let type = PaymentStatus(rawValue: value) {
+            self = type
+        } else {
+            return nil
+        }
+    }
+}
 

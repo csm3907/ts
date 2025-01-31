@@ -14,15 +14,15 @@ public struct DutchPayModel {
     public let totalAmount: Int
     public let completedAmount: Int
     
-    public let dutchPayItem: [DutchPayItemModel]
+    public let dutchPayItems: [DutchPayItemModel]
     
     public struct DutchPayItemModel {
-        let id: Int
-        let name: String
-        let amount: Int
-        let transferMessage: String?
-        let isDone: Bool
-        let isRequesting: Bool
+        public let id: Int
+        public let name: String
+        public let amount: Int
+        public let transferMessage: String?
+        public let isDone: Bool
+        public let isRequesting: Bool
         
         public init(id: Int, name: String, amount: Int, transferMessage: String?, isDone: Bool, isRequesting: Bool) {
             self.id = id
@@ -34,12 +34,12 @@ public struct DutchPayModel {
         }
     }
     
-    public init(ownerName: String, message: String, date: String, totalAmount: Int, completedAmount: Int, dutchPayItem: [DutchPayItemModel]) {
+    public init(ownerName: String, message: String, date: String, totalAmount: Int, completedAmount: Int, dutchPayItems: [DutchPayItemModel]) {
         self.ownerName = ownerName
         self.message = message
         self.date = date
         self.totalAmount = totalAmount
         self.completedAmount = completedAmount
-        self.dutchPayItem = dutchPayItem
+        self.dutchPayItems = dutchPayItems
     }
 }

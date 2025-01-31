@@ -13,7 +13,7 @@ import Domain
 import Foundation
 
 struct DutchPayListFetchRequest: Request {
-    typealias Output = DutchPayRequestItemDTO
+    typealias Output = PayRequestItemDTO
 
     let endpoint: URL
     let method: HTTPMethod

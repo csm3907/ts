@@ -8,9 +8,9 @@
 import Foundation
 import Domain
 
-public struct DutchPayRequestItemDTO: Codable {
-    var dutchSummary: DutchSummaryDTO?
-    var dutchDetailList: [DutchDetailListItemDTO]?
+public struct PayRequestItemDTO: Codable {
+    var dutchSummary: PaySummaryDTO?
+    var dutchDetailList: [PayDetailListItemDTO]?
     
     func toDomain() -> DutchPayModel {
         return DutchPayModel.init(
@@ -19,13 +19,13 @@ public struct DutchPayRequestItemDTO: Codable {
             date: dutchSummary?.date ?? "",
             totalAmount: dutchSummary?.totalAmount ?? 0,
             completedAmount: dutchSummary?.completedAmount ?? 0,
-            dutchPayItem: dutchDetailList?.map { $0.toDomain() } ?? []
+            dutchPayItems: dutchDetailList?.map { $0.toDomain() } ?? []
         )
     }
 }
 
-public struct DutchDetailListItemDTO: Codable {
-    let dutchID: Int?
+public struct PayDetailListItemDTO: Codable {
+    let dutchId: Int?
     let name: String?
     let amount: Int?
     let transferMessage: String?
@@ -34,7 +34,7 @@ public struct DutchDetailListItemDTO: Codable {
     
     public func toDomain() -> DutchPayModel.DutchPayItemModel {
         return DutchPayModel.DutchPayItemModel.init(
-            id: dutchID ?? 0,
+            id: dutchId ?? 0,
             name: name ?? "",
             amount: amount ?? 0,
             transferMessage: transferMessage ?? "",
@@ -44,7 +44,7 @@ public struct DutchDetailListItemDTO: Codable {
     }
 }
 
-public struct DutchSummaryDTO: Codable {
+public struct PaySummaryDTO: Codable {
     let ownerName, message: String?
     let ownerAmount, completedAmount, totalAmount: Int?
     let date: String?

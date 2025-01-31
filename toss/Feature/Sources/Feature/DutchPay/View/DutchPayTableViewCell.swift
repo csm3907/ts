@@ -93,7 +93,7 @@ final public class DutchPayTableViewCell: UITableViewCell {
     }
     
     // MARK: - Configuration
-    func configure(with participant: DutchPayParticipant) {
+    func configure(with participant: DutchParticipantModel) {
         initialsLabel.text = String(participant.name.prefix(1))
         nameLabel.text = participant.name
         amountLabel.text = "\(participant.amount.formattedWithComma)원"

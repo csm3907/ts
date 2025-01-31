@@ -1,36 +1,40 @@
 //
-//  ViewController.swift
+//  DutchPayViewController.swift
 //  Feature
 //
 //  Created by 최승민 on 1/31/25.
 //
 
+import Combine
 import UIKit
 import SnapKit
-import Combine
 
-public class ViewController: UIViewController {
+import Design
+
+public class DutchPayViewController: UIViewController {
     // MARK: - Properties
-    private let viewModel: DutchPayViewModel = .init()
-    private var cancellables = Set<AnyCancellable>()
+    private let viewModel: DutchPayViewModel
     private var dataSource: DutchPayDataSource!
+    private var cancellables = Set<AnyCancellable>()
+    
+    private lazy var refreshControl: UIRefreshControl = {
+        let refresh = UIRefreshControl()
+        refresh.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        return refresh
+    }()
     
     private lazy var tableView: UITableView = {
         let table = UITableView(frame: .zero, style: .plain)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.register(DutchPayTableViewCell.self, forCellReuseIdentifier: DutchPayTableViewCell.identifier)
         table.register(DutchPayHeaderCell.self, forCellReuseIdentifier: DutchPayHeaderCell.identifier)
+        table.refreshControl = refreshControl
         return table
     }()
     
-    // MARK: - Enum & Model
-    enum Section {
-        case header
-        case main
-    }
-    
     // MARK: - Initialization
     public init() {
+        self.viewModel = DutchPayViewModel()
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -48,36 +52,21 @@ public class ViewController: UIViewController {
         viewModel.fetchDutchPayData()
     }
     
-    // MARK: - Binding
-    private func bind() {
-        // Error 바인딩
-        viewModel.error
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] errorMessage in
-                self?.showAlert(message: errorMessage)
-            }
-            .store(in: &cancellables)
-            
-        // Snapshot 바인딩
-        viewModel.snapshot
-            .compactMap { $0 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] snapshot in
-                self?.applySnapshot(snapshot)
-            }
-            .store(in: &cancellables)
+    // MARK: - Setup
+    private func setupUI() {
+        title = "더치페이"
+        view.backgroundColor = .white
+        view.addSubview(tableView)
+        tableView.snp.remakeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
     }
     
-    private func applySnapshot(_ snapshot: DutchPaySnapshot) {
-        dataSource.apply(snapshot, animatingDifferences: true)
-    }
-    
-    // MARK: - Private Methods
     private func configureDataSource() {
         dataSource = DutchPayDataSource(
             tableView: tableView,
-            cellProvider: { [weak self] tableView, indexPath, item in
+            cellProvider: { tableView, indexPath, item in
                 switch item {
                 case .header(let headerItem):
                     guard let cell = tableView.dequeueReusableCell(
@@ -108,36 +97,32 @@ public class ViewController: UIViewController {
                 }
             }
         )
-        
-        var snapshot = DutchPaySnapshot()
-        snapshot.appendSections([.header, .main])
-        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
-    private func showAlert(message: String) {
-        let alert = UIAlertController(
-            title: "오류",
-            message: message,
-            preferredStyle: .alert
-        )
-        
-        let okAction = UIAlertAction(
-            title: "확인",
-            style: .default
-        )
-        
-        alert.addAction(okAction)
-        present(alert, animated: true)
+    // MARK: - Actions
+    @objc private func handleRefresh() {
+        viewModel.fetchDutchPayData()
     }
     
-    // MARK: - Setup
-    private func setupUI() {
-        title = "더치페이"
-        view.backgroundColor = .white
-        view.addSubview(tableView)
-        tableView.snp.remakeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide.snp.top)
-            $0.leading.trailing.bottom.equalToSuperview()
-        }
+    private func bind() {
+        // Error 바인딩
+        viewModel.error
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] errorMessage in
+                self?.refreshControl.endRefreshing()
+                self?.alert(title: "문제가 발생했습니다.", message: errorMessage)
+            }
+            .store(in: &cancellables)
+        
+        // Snapshot 바인딩
+        viewModel.snapshot
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                self?.refreshControl.endRefreshing()
+                self?.dataSource.apply(snapshot, animatingDifferences: true)
+            }
+            .store(in: &cancellables)
     }
 }
