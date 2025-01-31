@@ -20,6 +20,7 @@ struct DutchParticipantModel: Hashable {
     let amount: Int
     var status: PaymentStatus
     let message: String?
+    var date: Date?
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

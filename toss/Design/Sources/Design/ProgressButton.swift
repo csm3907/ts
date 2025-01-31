@@ -63,13 +63,8 @@ public class ProgressButton: UIButton {
         layer.addSublayer(maskLayer)
     }
     
-    public func animate(from fromValue: CGFloat) {
+    public func animate(from progress: CGFloat) {
         cancel()
-        
-        let morph = CABasicAnimation(keyPath: "ProgressButton")
-        morph.duration = CFTimeInterval(duration)
-        morph.toValue = circlePath
-        maskLayer.add(morph, forKey: "ProgressButton")
         
         let layer = CAShapeLayer()
         layer.fillColor = UIColor.clear.cgColor
@@ -78,13 +73,12 @@ public class ProgressButton: UIButton {
         layer.path = circlePath.cgPath
         
         let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.fromValue = fromValue
+        animation.fromValue = progress
         animation.toValue = 1.0
-        animation.duration = CFTimeInterval(duration * (1 - fromValue))
+        animation.duration = CFTimeInterval(duration * (1 - progress))
         animation.delegate = self
         
-        layer.add(animation, forKey: "myStroke")
-        
+        layer.add(animation, forKey: "progressAnimation")
         self.layer.addSublayer(layer)
     }
     
@@ -101,6 +95,7 @@ public class ProgressButton: UIButton {
 // MARK: - CAAnimationDelegate
 extension ProgressButton: CAAnimationDelegate {
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        print("stop!!!!!!!!!!!!!!!!!!!!!!!")
         guard flag else { return }
         completion?()
     }

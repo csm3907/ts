@@ -100,12 +100,22 @@ public class DutchPayViewController: UIViewController {
                     }
                     cell.statusLabel.touchPublisher
                         .sink { _ in
-                            self.viewModel.requestPayment(for: participant.id)
+                            if participant.status == .requested {
+                                self.alert(message: "재요청은 한 번만 가능합니다.")
+                            } else {
+                                self.viewModel.requestPayment(for: participant.id)
+                            }
+                        }
+                        .store(in: &self.cancellables)
+                    cell.progressButton.touchPublisher
+                        .sink { _ in
+                            cell.progressButton.cancel()
+                            self.viewModel.requestCancel(for: participant.id)
                         }
                         .store(in: &self.cancellables)
                     return cell
                     
-                case .commercial(let _):
+                case .commercial( _):
                     guard let cell = tableView.dequeueReusableCell(withIdentifier: DutchPayCommercialCell.identifier, for: indexPath) as? DutchPayCommercialCell else { return UITableViewCell() }
                     return cell
                 }

@@ -9,6 +9,6 @@ import Combine
 import Foundation
 
 public protocol PayRepository {
-    func fetchList() -> AnyPublisher<DutchPayModel, Error>
+    func fetchList(isFirst: Bool) -> AnyPublisher<DutchPayModel, Error>
     func request()
 }

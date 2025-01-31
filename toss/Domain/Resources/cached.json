@@ -1,0 +1,25 @@
+{
+    "ownerName": "김철수",
+    "message": "💸💸👍👍👻👻👻 우리 오늘 모임 즐거웠다~~~ 돈 다 나에게도 주즈아~~",
+    "date": "2019-04-06T12:24:00",
+    "totalAmount": 220000,
+    "completedAmount": 158000,
+    "dutchPayItems": [
+        {
+            "id": 1,
+            "name": "김철수",
+            "amount": 55000,
+            "transferMessage": "오늘 즐거웠어요~",
+            "isDone": true,
+            "isRequesting": false
+        },
+        {
+            "id": 2,
+            "name": "이영희",
+            "amount": 55000,
+            "transferMessage": "맛있게 먹었어요!",
+            "isDone": false,
+            "isRequesting": false
+        }
+    ]
+} 

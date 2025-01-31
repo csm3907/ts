@@ -42,7 +42,11 @@ final class DutchPayViewModel {
     }
     
     func requestPaymentDone(for participantId: Int) {
-        updateStatus(participantId: participantId, isDone: true, isRequesting: nil)
+        updateStatus(participantId: participantId, isDone: true, isRequesting: true)
+    }
+    
+    func requestCancel(for participantId: Int) {
+        updateStatus(participantId: participantId, isDone: false, isRequesting: false)
     }
     
     // MARK: - Private Methods

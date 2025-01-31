@@ -10,7 +10,6 @@ import Foundation
 import Core
 import Domain
 
-import Foundation
 
 struct DutchPayListFetchRequest: Request {
     typealias Output = PayRequestItemDTO

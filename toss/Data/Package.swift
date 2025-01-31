@@ -21,6 +21,10 @@ let package = Package(
             dependencies: [
                 .product(name: "Core", package: "Core"),
                 .product(name: "Domain", package: "Domain"),
-            ]),
+            ],
+            resources: [
+                .copy("Resources/cached_data.json")
+            ]
+        ),
     ]
 )
