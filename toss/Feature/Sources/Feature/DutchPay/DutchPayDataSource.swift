@@ -46,4 +46,6 @@ public struct DutchPayParticipant: Hashable {
 enum PaymentStatus: String {
     case completed = "완료"
     case requested = "요청함"
+    case requesting = "요청중"
+    case reRequest = "재요청"
 }

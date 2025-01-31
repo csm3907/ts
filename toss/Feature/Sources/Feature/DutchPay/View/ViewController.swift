@@ -5,11 +5,14 @@
 //  Created by 최승민 on 1/31/25.
 //
 
+import Combine
 import UIKit
 import SnapKit
 
 public class ViewController: UIViewController {
     // MARK: - Properties
+    private let viewModel: DutchPayViewModel
+    private var cancellables = Set<AnyCancellable>()
     private var dataSource: DutchPayDataSource!
     
     private lazy var tableView: UITableView = {
@@ -20,12 +23,25 @@ public class ViewController: UIViewController {
         return table
     }()
     
+    // MARK: - Initialization
+    public init() {
+        self.viewModel = DutchPayViewModel()
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUI()
         configureDataSource()
         applyInitialSnapshot()
+        bind()
+        
+        viewModel.fetchDutchPayData()
     }
     
     // MARK: - Setup
@@ -90,5 +106,9 @@ public class ViewController: UIViewController {
         
         snapshot.appendItems(participants.map{ DutchPayItem.participant($0)}, toSection: .main)
         dataSource.apply(snapshot, animatingDifferences: true)
+    }
+    
+    private func bind() {
+        
     }
 }

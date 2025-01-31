@@ -18,6 +18,7 @@ let package = Package(
         .package(url: "https://github.com/ashleymills/Reachability.swift", .upToNextMajor(from: "5.0.0")),
         .package(url: "https://github.com/SnapKit/SnapKit", .upToNextMajor(from: "5.0.0")),
         .package(url: "https://github.com/devxoul/Then", .upToNextMajor(from: "3.0.0")),
+        .package(url: "https://github.com/Swinject/Swinject", .upToNextMajor(from: "2.0.0")),
     ],
     targets: [
         .target(
@@ -28,6 +29,7 @@ let package = Package(
                 .product(name: "Reachability", package: "Reachability.swift"),
                 "SnapKit",
                 "Then",
+                "Swinject",
             ]
         ),
     ]

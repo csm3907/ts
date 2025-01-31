@@ -6,7 +6,11 @@
 //
 
 import UIKit
+
 import Feature
+import Core
+import Data
+import Domain
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,6 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
+        configureContainer()
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = UINavigationController(rootViewController: ViewController())
         window.makeKeyAndVisible()
@@ -54,3 +59,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 }
 
+extension SceneDelegate {
+    @discardableResult
+    func configureContainer() -> Container {
+        let container = Container.shared
+        registerServices(container: container)
+        return container
+    }
+    
+    func registerServices(container: Container) {
+        let network = NetworkImp(session: URLSession.shared)
+        
+        let dutchPayRepository = PayRepositoryImp(baseURL: Constant.baseURL, network: network)
+        container.register(PayRepository.self, scope: .single, factory: { _ in dutchPayRepository })
+    }
+}
