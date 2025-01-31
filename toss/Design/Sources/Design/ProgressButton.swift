@@ -32,7 +32,17 @@ public class ProgressButton: UIButton {
         backgroundColor = .clear
         tintColor = color
         
-        imageEdgeInsets = UIEdgeInsets(top: radius / 2, left: radius / 2, bottom: radius / 2, right: radius / 2)
+        var config = UIButton.Configuration.plain()
+        config.image = image
+        config.contentInsets = NSDirectionalEdgeInsets(
+            top: radius / 2,
+            leading: radius / 2,
+            bottom: radius / 2,
+            trailing: radius / 2
+        )
+        config.imagePlacement = .all
+        config.imagePadding = 0
+        configuration = config
         
         imageView?.contentMode = .scaleAspectFit
         setImage(image, for: .normal)

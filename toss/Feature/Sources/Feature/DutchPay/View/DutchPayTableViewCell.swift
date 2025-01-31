@@ -139,7 +139,7 @@ final public class DutchPayTableViewCell: UITableViewCell {
         }
           
         progressButton.snp.makeConstraints {
-            $0.height.equalTo(statusLabel)
+            $0.width.height.equalTo(32)
         }
         
         nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)

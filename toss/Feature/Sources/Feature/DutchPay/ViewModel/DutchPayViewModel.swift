@@ -88,7 +88,6 @@ final class DutchPayViewModel {
                     }
                 }
             } receiveValue: { _ in
-                //self?.dutchPayData.accept(model)
             }
             .store(in: &cancellables)
     }
