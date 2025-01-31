@@ -108,6 +108,7 @@ final public class DutchPayTableViewCell: UITableViewCell {
         progressButton.snp.makeConstraints {
             $0.centerX.equalTo(statusLabel.snp.centerX)
             $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(30)
         }
     }
     

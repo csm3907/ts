@@ -21,4 +21,5 @@ enum DutchPaySection {
 enum DutchPayItem: Hashable {
     case header(DutchHeaderModel)
     case participant(DutchParticipantModel)
+    case commercial(String)
 }

@@ -22,7 +22,7 @@ struct DutchPayMapper {
         )
         snapshot.appendItems([.header(headerItem)], toSection: .header)
         
-        let participants = model.dutchPayItems.map { item in
+        var participants = model.dutchPayItems.map { item in
             var status: PaymentStatus
             if item.isDone {
                 if item.isRequesting {
@@ -48,6 +48,9 @@ struct DutchPayMapper {
                 )
             )
         }
+        let half = model.dutchPayItems.count / 2
+        participants.insert(.commercial("토스 공동계좌를 개설해 보세요"), at: half)
+        
         snapshot.appendItems(participants, toSection: .main)
         
         return snapshot

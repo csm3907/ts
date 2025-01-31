@@ -28,6 +28,7 @@ public class DutchPayViewController: UIViewController {
         table.translatesAutoresizingMaskIntoConstraints = false
         table.register(DutchPayTableViewCell.self, forCellReuseIdentifier: DutchPayTableViewCell.identifier)
         table.register(DutchPayHeaderCell.self, forCellReuseIdentifier: DutchPayHeaderCell.identifier)
+        table.register(DutchPayCommercialCell.self, forCellReuseIdentifier: DutchPayCommercialCell.identifier)
         table.refreshControl = refreshControl
         return table
     }()
@@ -102,6 +103,10 @@ public class DutchPayViewController: UIViewController {
                             self.viewModel.requestPayment(for: participant.id)
                         }
                         .store(in: &self.cancellables)
+                    return cell
+                    
+                case .commercial(let _):
+                    guard let cell = tableView.dequeueReusableCell(withIdentifier: DutchPayCommercialCell.identifier, for: indexPath) as? DutchPayCommercialCell else { return UITableViewCell() }
                     return cell
                 }
             }
